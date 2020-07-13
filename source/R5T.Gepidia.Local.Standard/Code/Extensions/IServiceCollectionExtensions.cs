@@ -15,8 +15,10 @@ namespace R5T.Gepidia.Local.Standard
         /// </summary>
         public static IServiceCollection AddLocalFileSystemOperator(this IServiceCollection services)
         {
-            services.AddLocalFileSystemOperator(
-                services.AddStringlyTypedPathOperatorAction());
+            var stringlyTypedPathOperatorAction = services.AddStringlyTypedPathOperatorAction();
+
+            services.AddLocalFileSystemOperatorOnly(
+                stringlyTypedPathOperatorAction);
 
             return services;
         }
@@ -24,29 +26,14 @@ namespace R5T.Gepidia.Local.Standard
         /// <summary>
         /// Adds the <see cref="ILocalFileSystemOperator"/> service.
         /// </summary>
-        public static ServiceAction<ILocalFileSystemOperator> AddLocalFileSystemOperatorAction(this IServiceCollection services)
+        public static (
+            IServiceAction<ILocalFileSystemOperator> localFileSystemOperatorAction,
+            IServiceAction<IFileSystemOperator> fileSystemOperatorAction
+            ) AddLocalFileSystemOperatorAction(this IServiceCollection services)
         {
-            var serviceAction = new ServiceAction<ILocalFileSystemOperator>(() => services.AddLocalFileSystemOperator());
-            return serviceAction;
-        }
+            var stringlyTypedPathOperatorAction = services.AddStringlyTypedPathOperatorAction();
 
-        /// <summary>
-        /// Adds the local-based <see cref="IFileSystemOperator"/> service.
-        /// </summary>
-        public static IServiceCollection AddFileSystemOperator(this IServiceCollection services)
-        {
-            services.AddLocalBasedFileSystemOperator(
-                services.AddLocalFileSystemOperatorAction());
-
-            return services;
-        }
-
-        /// <summary>
-        /// Adds the local-based <see cref="IFileSystemOperator"/> service.
-        /// </summary>
-        public static ServiceAction<IFileSystemOperator> AddFileSystemOperatorAction(this IServiceCollection services)
-        {
-            var serviceAction = new ServiceAction<IFileSystemOperator>(() => services.AddFileSystemOperator());
+            var serviceAction = services.AddLocalFileSystemOperatorAction(stringlyTypedPathOperatorAction);
             return serviceAction;
         }
     }
